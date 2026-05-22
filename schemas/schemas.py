@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field
 
+from typing import Literal
+
 
 # --- list_categories ---
 class ListCategoriesInput(BaseModel):
@@ -90,3 +92,30 @@ class FilterByIntentResponse(BaseModel):
     examples: list[dict]
     # populated if no exact match found, empty otherwise
     suggestions: list[str]
+
+
+# Structured output schema
+# class Route(BaseModel):
+#     """Routing decision produced by the router LLM."""
+
+#     query_type: Literal["structured", "unstructured", "out_of_scope"] = Field(
+#         description=(
+#             "Classify the user query:\n"
+#             "  'structured'   – targets specific, queryable data or records "
+#             "(categories, IDs, counts, filters).\n"
+#             "  'unstructured' – open-ended, analytical, or generative request "
+#             "that needs broad reasoning.\n"
+#             "  'out_of_scope' – completely unrelated to the agent's domain; "
+#             "must NOT be answered."
+#         )
+#     )
+#     reasoning: str = Field(
+#         description="One short sentence explaining the classification."
+#     )
+
+class Route(BaseModel):
+    query_type: Literal[
+        "structured",
+        "unstructured",
+        "out_of_scope"
+    ]
