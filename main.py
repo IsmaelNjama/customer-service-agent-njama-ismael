@@ -7,9 +7,12 @@ from langchain_classic.agents import (
 )
 
 from tools.tools import tools
-from utils.system_prompt import system_prompt
+from prompts.system_prompt import system_prompt
 
 from graph.graph import build_graph
+
+from langgraph.checkpoint.postgres import PostgresSaver
+DB_URI = os.environ["DATABASE_URL"]
 
 
 load_dotenv()
@@ -40,17 +43,58 @@ executor = AgentExecutor(
 
 # executor.invoke({"input": "Summarize the FEEDBACK category."})
 
-app = build_graph(router_llm, executor)
 
+with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
 
-def run(query: str) -> str:
-    """Run a query through the router → agent pipeline."""
-    result = app.invoke({"input": query, "messages": []})
-    print("\n── Final Answer ──────────────────────────────────")
-    print(result["output"])
-    print("──────────────────────────────────────────────────\n")
-    return result["output"]
+    checkpointer.setup()
 
+    app = build_graph(
+        router_llm,
+        executor,
+        checkpointer
+    )
 
-if __name__ == "__main__":
-    run("What is the distribution of intents in the ACCOUNT category?")
+    def run(query: str, session_id: str):
+
+        config = {
+            "configurable": {
+                "thread_id": session_id
+            }
+        }
+
+        result = app.invoke(
+            {
+                "input": query,
+            },
+            config=config,
+        )
+
+        print("\n── Final Answer ──────────────────────────────────")
+        print(result["output"])
+        print("──────────────────────────────────────────────────\n")
+
+        return result["output"]
+
+    if __name__ == "__main__":
+        import argparse
+
+        parser = argparse.ArgumentParser()
+
+        parser.add_argument(
+            "--session",
+            type=str,
+            required=True,
+        )
+
+        args = parser.parse_args()
+
+        print(f"\nSession: {args.session}")
+
+        while True:
+
+            user_input = input("\nYou: ")
+
+            if user_input.lower() == "exit":
+                break
+
+            run(user_input, args.session)

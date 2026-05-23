@@ -6,3 +6,4 @@ pandas
 pydantic
 dotenv
 langchain-classic
+langgraph-checkpoint-postgres

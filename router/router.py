@@ -1,5 +1,5 @@
 from schemas.schemas import Route
-from utils.router_prompt import router_prompt
+from prompts.router_prompt import router_prompt
 
 
 def build_router(llm):
