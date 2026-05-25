@@ -1,3 +1,4 @@
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
@@ -12,10 +13,13 @@ from prompts.system_prompt import system_prompt
 from graph.graph import build_graph
 
 from langgraph.checkpoint.postgres import PostgresSaver
-DB_URI = os.environ["DATABASE_URL"]
-
+from langchain_mcp_adapters.client import MultiServerMCPClient
+import asyncio
+import argparse
 
 load_dotenv()
+DB_URI = os.environ["DATABASE_URL"]
+
 
 router_llm = ChatOpenAI(
     model="google/gemma-3-27b-it",
@@ -32,69 +36,45 @@ llm = ChatOpenAI(
 )
 
 
-agent = create_tool_calling_agent(llm, tools, system_prompt)
+async def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--session", type=str, required=True)
+    args = parser.parse_args()
 
-executor = AgentExecutor(
-    agent=agent,
-    tools=tools,
-    max_iterations=10,
-    verbose=True
-)
+    client = MultiServerMCPClient({
+        "server": {
+            "transport": "streamable_http",
+            "url": "http://localhost:8000/mcp"
+        }
+    })
+    mcp_tools = await client.get_tools()
+    all_tools = tools + mcp_tools
 
-# executor.invoke({"input": "Summarize the FEEDBACK category."})
-
-
-with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
-
-    checkpointer.setup()
-
-    app = build_graph(
-        router_llm,
-        executor,
-        checkpointer
+    agent = create_tool_calling_agent(llm, all_tools, system_prompt)
+    executor = AgentExecutor(
+        agent=agent,
+        tools=all_tools,
+        max_iterations=10,
+        verbose=True
     )
 
-    def run(query: str, session_id: str):
-
-        config = {
-            "configurable": {
-                "thread_id": session_id
-            }
-        }
-
-        result = app.invoke(
-            {
-                "input": query,
-            },
-            config=config,
-        )
-
-        print("\n── Final Answer ──────────────────────────────────")
-        print(result["output"])
-        print("──────────────────────────────────────────────────\n")
-
-        return result["output"]
-
-    if __name__ == "__main__":
-        import argparse
-
-        parser = argparse.ArgumentParser()
-
-        parser.add_argument(
-            "--session",
-            type=str,
-            required=True,
-        )
-
-        args = parser.parse_args()
+    async with AsyncPostgresSaver.from_conn_string(DB_URI) as checkpointer:
+        await checkpointer.setup()
+        app = build_graph(router_llm, executor, checkpointer)
 
         print(f"\nSession: {args.session}")
 
         while True:
-
             user_input = input("\nYou: ")
-
             if user_input.lower() == "exit":
                 break
 
-            run(user_input, args.session)
+            config = {"configurable": {"thread_id": args.session}}
+            result = await app.ainvoke({"input": user_input}, config=config)
+            print("\n── Final Answer ──────────────────────────────────")
+            print(result["output"])
+            print("──────────────────────────────────────────────────\n")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

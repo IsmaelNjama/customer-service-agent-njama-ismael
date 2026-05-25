@@ -6,36 +6,36 @@ from schemas.schemas import (ListCategoriesInput, ListCategoriesResponse, CountB
 df = load_bitext()
 
 
-@tool(args_schema=ListCategoriesInput)
-def list_categories() -> ListCategoriesResponse:
-    """Lists all unique categories that exist in the customer service dataset."""
-    categories = df['category'].unique().tolist()
-    return ListCategoriesResponse(categories=categories)
+# @tool(args_schema=ListCategoriesInput)
+# def list_categories() -> ListCategoriesResponse:
+#     """Lists all unique categories that exist in the customer service dataset."""
+#     categories = df['category'].unique().tolist()
+#     return ListCategoriesResponse(categories=categories)
 
 
-@tool(args_schema=CountByIntentInput)
-def count_by_intent(intent_keyword: str) -> CountByIntentResponse:
-    """Counts how many entries match an intent name or keyword (e.g. 'refund', 'shipping')."""
-    mask = df['intent'].str.contains(intent_keyword, case=False, na=False)
-    count = int(mask.sum())
-    matched_intents = df[mask]['intent'].unique().tolist()
-    return CountByIntentResponse(count=count, matched_intents=matched_intents)
+# @tool(args_schema=CountByIntentInput)
+# def count_by_intent(intent_keyword: str) -> CountByIntentResponse:
+#     """Counts how many entries match an intent name or keyword (e.g. 'refund', 'shipping')."""
+#     mask = df['intent'].str.contains(intent_keyword, case=False, na=False)
+#     count = int(mask.sum())
+#     matched_intents = df[mask]['intent'].unique().tolist()
+#     return CountByIntentResponse(count=count, matched_intents=matched_intents)
 
 
-@tool(args_schema=SampleByCategoryInput)
-def sample_by_category(category: str, n: int = 5) -> SampleByCategoryResponse:
-    """Returns n example instruction/response pairs from a given category (e.g. 'SHIPPING', 'ACCOUNT')."""
-    filtered = df[df['category'].str.upper() == category.upper()]
-    if filtered.empty:
-        return SampleByCategoryResponse(category=category, total_available=0, examples=[])
-    sample = filtered[['intent', 'instruction', 'response']].sample(
-        min(n, len(filtered)))
-    examples = sample.to_dict(orient='records')
-    return SampleByCategoryResponse(
-        category=category,
-        total_available=len(filtered),
-        examples=examples
-    )
+# @tool(args_schema=SampleByCategoryInput)
+# def sample_by_category(category: str, n: int = 5) -> SampleByCategoryResponse:
+#     """Returns n example instruction/response pairs from a given category (e.g. 'SHIPPING', 'ACCOUNT')."""
+#     filtered = df[df['category'].str.upper() == category.upper()]
+#     if filtered.empty:
+#         return SampleByCategoryResponse(category=category, total_available=0, examples=[])
+#     sample = filtered[['intent', 'instruction', 'response']].sample(
+#         min(n, len(filtered)))
+#     examples = sample.to_dict(orient='records')
+#     return SampleByCategoryResponse(
+#         category=category,
+#         total_available=len(filtered),
+#         examples=examples
+#     )
 
 
 @tool(args_schema=SummarizeIntentResponsesInput)
@@ -113,9 +113,9 @@ def filter_by_intent(intent: str, n: int = 5) -> FilterByIntentResponse:
 
 
 tools = [
-    list_categories,
-    count_by_intent,
-    sample_by_category,
+    # list_categories,
+    # count_by_intent,
+    # sample_by_category,
     summarize_intent_responses,
     semantic_search_instructions,
     intent_distribution_by_category,

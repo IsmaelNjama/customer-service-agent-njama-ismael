@@ -52,9 +52,9 @@ def make_router_node(router_chain):
 # Agent node
 def make_agent_node(executor):
 
-    def agent_node(state: AgentState) -> dict:
+    async def agent_node(state: AgentState) -> dict:
 
-        result = executor.invoke(
+        result = await executor.ainvoke(
             {
                 "input": state["input"],
                 "chat_history": state["messages"],
@@ -70,8 +70,9 @@ def make_agent_node(executor):
 
     return agent_node
 
-
 # Decline node
+
+
 def decline_node(state: AgentState) -> dict:
 
     message = (
