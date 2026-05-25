@@ -7,3 +7,6 @@ pydantic
 dotenv
 langchain-classic
 langgraph-checkpoint-postgres
+fastmcp
+trio
+langchain-mcp-adapters
