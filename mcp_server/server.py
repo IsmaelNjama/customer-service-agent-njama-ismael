@@ -1,8 +1,19 @@
+import signal
+import sys
 from fastmcp import FastMCP
 from datasets import load_dataset
 import pandas as pd
 
 mcp = FastMCP("server")
+
+
+def shutdown_handler(signum, frame):
+    print("\nShutting down MCP server ...")
+    sys.exit(0)
+
+
+signal.signal(signal.SIGINT, shutdown_handler)   # Ctrl+C
+signal.signal(signal.SIGTERM, shutdown_handler)  # docker/system stop
 
 
 def load_bitext():
