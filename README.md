@@ -28,10 +28,10 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Copy `.env` and fill in your credentials:
+Create `.env` and fill in your credentials:
 
 ```bash
-cp .env .env.local
+touch .env
 ```
 
 ```env
