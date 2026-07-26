@@ -77,7 +77,7 @@ def decline_node(state: AgentState) -> dict:
 
     message = (
         "I'm sorry, but that question is outside my area of expertise. "
-        "I'm designed to help with structured business data queries and analysis."
+        "I'm designed to help with business data queries and analysis."
     )
 
     return {
