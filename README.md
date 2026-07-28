@@ -51,7 +51,7 @@ docker run --name langgraph-postgres \
   -e POSTGRES_PASSWORD=postgres \
   -e POSTGRES_DB=langgraph \
   -p 5432:5432 \
-  -d postgres:16
+  -d postgres:16-alpine
 ```
 
 ---
