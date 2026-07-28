@@ -11,3 +11,5 @@ fastmcp
 trio
 langchain-mcp-adapters
 langsmith
+fastapi
+uvicorn

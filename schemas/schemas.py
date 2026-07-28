@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 
 from typing import Literal
+from uuid import UUID
 
 
 # --- list_categories ---
@@ -119,3 +120,8 @@ class Route(BaseModel):
         "unstructured",
         "out_of_scope"
     ]
+
+
+class ChatRequest(BaseModel):
+    user_id: UUID
+    message: str
