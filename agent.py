@@ -71,7 +71,7 @@ async def main():
         agent=agent,
         tools=all_tools,
         max_iterations=10,
-        verbose=True
+        verbose=False
     )
 
     async with AsyncPostgresSaver.from_conn_string(DB_URI) as checkpointer:
