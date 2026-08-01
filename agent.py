@@ -33,7 +33,8 @@ router_llm = ChatOpenAI(
 llm = ChatOpenAI(
     model="Qwen/Qwen3-235B-A22B-Instruct-2507",
     base_url="https://api.tokenfactory.us-central1.nebius.com/v1/",
-    api_key=os.environ.get("NEBIUS_API_KEY")
+    api_key=os.environ.get("NEBIUS_API_KEY"),
+
 )
 
 
