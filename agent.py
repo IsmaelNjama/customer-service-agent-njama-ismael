@@ -17,9 +17,15 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 import asyncio
 import argparse
 from utils.get_mcp_tools import get_mcp_tools_with_retry
+from huggingface_hub import login
 
 load_dotenv()
 DB_URI = os.environ["DATABASE_URL"]
+hf_token = os.getenv("HF_TOKEN")
+
+# Log in programmatically
+if hf_token:
+    login(token=hf_token)
 
 
 router_llm = ChatOpenAI(
@@ -71,7 +77,7 @@ async def main():
         agent=agent,
         tools=all_tools,
         max_iterations=10,
-        verbose=False
+        verbose=True
     )
 
     async with AsyncPostgresSaver.from_conn_string(DB_URI) as checkpointer:
