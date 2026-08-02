@@ -17,9 +17,15 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 import asyncio
 import argparse
 from utils.get_mcp_tools import get_mcp_tools_with_retry
+from huggingface_hub import login
 
 load_dotenv()
 DB_URI = os.environ["DATABASE_URL"]
+hf_token = os.getenv("HF_TOKEN")
+
+# Log in programmatically
+if hf_token:
+    login(token=hf_token)
 
 
 router_llm = ChatOpenAI(
@@ -33,7 +39,8 @@ router_llm = ChatOpenAI(
 llm = ChatOpenAI(
     model="Qwen/Qwen3-235B-A22B-Instruct-2507",
     base_url="https://api.tokenfactory.us-central1.nebius.com/v1/",
-    api_key=os.environ.get("NEBIUS_API_KEY")
+    api_key=os.environ.get("NEBIUS_API_KEY"),
+
 )
 
 

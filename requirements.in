@@ -11,3 +11,4 @@ fastmcp
 trio
 langchain-mcp-adapters
 langsmith
+huggingface_hub
